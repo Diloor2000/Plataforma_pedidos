@@ -4,6 +4,7 @@ import { Worker } from "node:worker_threads";
 import path from "node:path";
 import { contarPrimos } from "./calculo";
 import { registrarPeticion, obtenerMetricas } from "./metricas";
+import { contarPrimosEnPool, PoolLleno, estadoPool } from "./pool";
 
 const app = express();
 const puerto = Number(process.env.PORT ?? 3000);
@@ -93,5 +94,21 @@ app.get("/reporte/worker", async (req, res) => {
   }
 });
 
-app.get("/metricas", (_req, res) => res.json(obtenerMetricas()));
+app.get("/reporte/pool", async (req, res) => {
+  const n = limite(req);
+  const inicio = performance.now();
+  try {
+    const primos = await contarPrimosEnPool(n);
+    res.json({ modo: "pool", n, primos, duracionMS: Math.round(performance.now() - inicio) });
+  } catch (error) {
+    if (error instanceof PoolLleno) {
+      res.setHeader("Retry-After", "1");
+      res.status(503).json({ error: error.message, pool: estadoPool() });
+      return;
+    }
+    res.status(500).json({ error: "No se pudo completar el reporte", detalle: String(error) });
+  }
+});
+
+app.get("/metricas", (_req, res) => res.json({ ...obtenerMetricas(), pool: estadoPool() }));
 app.listen(puerto, () => console.log(`Pedidos: puerto ${puerto}; inventario=${baseInventario}`));

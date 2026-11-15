@@ -1,30 +1,27 @@
-# Plataforma de Pedidos - base de clase
+# Plataforma de Pedidos | Deber S2
 
-Implementacion previa al **deber S2**, con dos servicios (Inventario y Pedidos),
-reservas, comprobaciones de salud, reportes bloqueantes y reportes en un worker
-por solicitud, y el interceptor de latencias por ruta.
+Servicios de Inventario y Pedidos (Express y TypeScript). Este desarrollo agrega:
+- Distribucion p50, p99 y maximo del retardo del bucle de eventos.
+- Conteo de nucleos visibles para Node.js.
+- Pool con limite configurable, cola acotada y 503 + `Retry-After`.
+- Metricas internas por ruta y estado del despachador.
 
-Este punto de partida **no incluye** monitor del bucle de eventos ni pool de
-trabajadores: ambos se desarrollan en la rama `s2/deber`.
-
-## Inicio rapido
-
-Desde esta carpeta y con Docker Desktop funcionando:
+## Ejecutar
 
 ```powershell
 docker compose up -d --build
 docker compose ps
 ```
 
-Endpoints principales:
-- http://localhost:3000/health
-- http://localhost:3000/health/ready
-- http://localhost:3000/reporte/bloqueante?n=2000000
-- http://localhost:3000/reporte/worker?n=2000000
-- http://localhost:3000/metricas
-- http://localhost:3001/stock/MOUSE-USB
+Se exponen `/reporte/bloqueante`, `/reporte/worker`, `/reporte/pool` y `/metricas`.
 
-## Trabajo independiente
+## Configuracion por defecto del laboratorio
 
-El estudiante debe realizar sus propias mediciones en su maquina, conservar
-las capturas y completar la bitacora. Los valores no son transferibles entre equipos.
+`MAX_TRABAJADORES=2` y `MAX_COLA=4` en `compose.yaml` para observar saturacion.
+Sin las variables, se usa `os.availableParallelism()` y el doble para la cola.
+
+## Evidencia experimental
+
+Ejecuta las mediciones en el equipo del estudiante. **No incluyas** resultados de
+otro equipo. Conserva salidas, JSON de `/metricas` y capturas, y transcribe los
+datos a `docs/s2/BITACORA.md`. La plantilla esta intencionalmente incompleta.

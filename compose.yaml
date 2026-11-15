@@ -8,13 +8,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
   pedidos:
     build: ./pedidos
     environment:
       INVENTARIO_URL: http://inventario:3001
       REPORTE_N: "8000000"
       UMBRAL_LENTA_MS: "1000"
+      MAX_TRABAJADORES: "2"
+      MAX_COLA: "4"
     ports:
       - "3000:3000"
     depends_on:
